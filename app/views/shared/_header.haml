@@ -1,0 +1,21 @@
+%header
+	.contain-to-grid
+		%nav.top-bar
+			.left_side
+				#logo
+					= link_to 'Киллер@Физтех', root_path
+
+			.right_side
+				- if admin_signed_in?
+					=link_to 'Игроки', users_path
+					=link_to 'События', events_path
+					=link_to 'Добавить игроков', new_user_path
+					-#=link_to 'Аккаунт', edit_admin_info_path
+					=link_to 'Выйти из админки', destroy_admin_session_path, method: :delete
+
+				-else
+					- if !user_signed_in?
+						=link_to 'Войти', new_user_session_path
+					- else
+						=link_to 'Аккаунт', edit_info_path
+						=link_to 'Выйти', destroy_user_session_path, method: :delete

@@ -1,0 +1,18 @@
+.row
+	%h1 Добавляем игрока
+
+	=form_for @user do |f|
+		=f.label :name, 'Имя'
+		=f.text_field :name, autofocus: true
+
+		=f.label :surname, 'Фамилия'
+		=f.text_field :surname
+
+		=f.submit 'Зарегистрировать', class:'button'
+
+	%ul
+	-@users.each do |user|
+		%li
+			= user.full_name
+			= user.login
+			= user.temp_password

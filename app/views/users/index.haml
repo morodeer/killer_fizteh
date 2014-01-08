@@ -1,0 +1,73 @@
+.row
+	%h1 Список игроков
+	=link_to 'Список для печати', print_users_path
+
+.row
+	%p
+		Живы
+		= User.where(dead:nil).count
+		, Мертвы
+		= User.where(dead:'true').count
+
+
+.row#body(ng-controller='UsersIndexCtrl')
+	-#=foundation_paginate @users
+	-#-iter = @users.offset
+	%input(type="text" ng-model="query" placeholder="фильтр пользователей")
+	%table
+		%thead
+			%td ID
+			%td Аватарка
+			%td Имя Фамилия
+			%td Жив?
+			%td Цель
+			%td Всего карточек
+			%td Редактировать
+		/
+			-@users.each do |user|
+				%tr
+					-#-#%td= iter=iter+1
+					-#%td= user.id
+					-#%td= link_to user.full_name, user_path(user)
+					-#-if !user.dead
+					-#	%td Да
+					-#	%td
+					-#		- if user.target.present?
+					-#			= link_to user.target.full_name, user_path(user.target)
+					-#		- else
+					-#			———
+					-#	%td= user.killers_cards.count
+					-#
+					-#-else
+					-#	%td Нет
+					-#	%td
+					-#	%td
+					-#%td= link_to 'Edit user', edit_user_path(user), class: 'tiny button'
+					-#%td= link_to 'Delete user',  user_path(user), class: 'tiny button',method: :delete, confirm: 'Are you sure you wanna delete him?'
+		%tr(ng-repeat='user in users | orderBy:"id" | filter: query')
+			-#%td= iter=iter+1
+			%td {{user.id}}
+			%td
+				%img(ng-src='{{user.avatar_thumb}}')
+			%td
+				%a(ng-href='/users/{{user.id}}') {{user.full_name}}
+
+			%td(ng-show='user.dead') Убит
+			%td(ng-hide='user.dead') Жив
+			%td(ng-show='user.target')
+				%a(ng-href='/users/{{user.target.id}}') {{user.target.full_name}}
+			%td(ng-hide='user.target') —
+			%td {{user.killers_cards_count}}
+			%td
+				%a(ng-href='/users/{{user.id}}/edit' class='tiny button') Edit user
+			-#%td
+			-#	%a{nghref:'/users/{{user.id}}/edit',class:'tiny button', dataMethod:'delete'} Delete user
+
+=javascript_include_tag('https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js')
+:javascript
+	var app = angular.module('miptkiller',[])
+
+	app.controller('UsersIndexCtrl',function($scope){
+		$scope.users = #{@users.to_json(only:[:id,:dead],methods:[:full_name,:avatar_thumb,:killers_cards_count],
+				include:{target: {only: [:id],methods:[:full_name]}})}
+	})

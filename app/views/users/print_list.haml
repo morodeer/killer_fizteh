@@ -1,0 +1,12 @@
+.row
+	%table
+		-@users.each do |user|
+			%tr
+				%td="#{user.full_name}"
+				%td="login:#{user.login}"
+				- if user.passwordchanged?
+					%td '*changed*'
+				- else
+					%td="pass:#{user.temp_password}"
+				%td="killing_word:#{user.killing_word}"
+				%td="target:#{user.target.present? ? user.target.full_name : '———'}"

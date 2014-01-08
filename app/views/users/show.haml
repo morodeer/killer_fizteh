@@ -1,0 +1,104 @@
+=render 'shared/flash'
+#body
+	.row
+		.large-12.columns
+			.row
+				.large-8.columns
+					%h2
+						=@user.full_name
+						- if admin_signed_in?
+							(
+							=link_to "Редактировать профиль", edit_user_path(@user)
+							)
+
+
+					%h4
+						-if admin_signed_in?
+							=link_to 'Удалить пользователя', user_path(@user), method: :delete, class: 'button',
+							data: {confirm: 'Are you sure?'}
+				.large-4.columns
+					= image_tag @user.avatar.url(:medium)
+
+
+			.panel
+				- if @user.dead
+					.alert-box.alert
+						Пользователь мертв
+						-if admin_signed_in?
+							=link_to('Оживить', revive_user_path(@user),
+							 data: {confirm: 'Вы точно хотите оживить игрока? '})
+				- else
+					- if @target.present?
+						.row
+							.large-2.columns
+								=link_to @target.avatar.url(:original), class:'object_block',
+								data: {colorbox: true,
+								colorbox_height: '95%', colorbox_width: '95%'} do
+									=image_tag @target.avatar.url(:thumb)
+							.large-10.columns
+								%h4
+									Цель -
+									= @target.full_name
+									- if admin_signed_in?
+										= link_to "...", user_path(@target)
+										(
+										=link_to 'Убрать цель', card_path(@target.victims_card), method: :delete, confirm: 'You sure?'
+										)
+								.row.collapse
+									-if admin_signed_in?
+										=form_tag admin_kill_user_path(@target) do
+											.small-7.columns
+												=text_field_tag 'target[killing_word]', nil, class: 'killing_word', |
+													placeholder: @target.killing_word |
+												=hidden_field_tag 'target[id]', @target.id
+												=hidden_field_tag 'method', 'admin'
+												=hidden_field_tag 'user[id]', @user.id
+											.small-5.columns
+												=submit_tag "Убить", class: 'button prefix'
+									-else
+										=form_tag kill_user_path(@target) do
+											.small-7.columns
+												=text_field_tag 'target[killing_word]', nil, class: 'killing_word', |
+													placeholder: 'Killing word' |
+												=hidden_field_tag 'target[id]', @target.id
+												=hidden_field_tag 'method', 'web'
+												=hidden_field_tag 'user[id]', @user.id
+											.small-5.columns
+												=submit_tag "Убить", class: 'button prefix'
+
+
+					- elsif admin_signed_in?
+						%h4 Выбрать цель
+						=form_for User.new, url: {action: 'set_target'} do |f|
+							=f.label :id
+							-killable_users = User.includes(:victims_card).where(cards: {victim_id:nil}, dead: nil) |
+								.where.not(id:@user.id) |
+
+							=f.select :id, options_from_collection_for_select(killable_users, :id, :full_name)
+							=f.submit 'Выбрать цель', class: 'button'
+
+
+
+
+
+			%p.killing_word
+				Пароль для убийства -
+				= @user.killing_word
+
+			-unless @user.dead
+				%h2 Карточки
+				%ul
+				-@user.killers_cards.each do |card|
+					%li= card.victim.full_name
+
+			%h2 События
+			%ul
+			-@events.each do |event|
+				%li
+					= "#{event.source.full_name}"
+					=" kills #{event.target.full_name}."
+					="Now he has #{event.card_count} cards "
+					-if event.new_target.present?
+						="and new target - #{event.new_target.full_name}"
+
+

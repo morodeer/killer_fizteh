@@ -1,0 +1,22 @@
+#body
+	.row
+		%h2 Изменение данных
+		=form_for @admin do |f|
+			=f.label :name
+			=f.text_field :name
+
+			=f.label :surname
+			=f.text_field :surname
+
+			=f.hidden_field :id
+
+			=f.label :login
+			=f.text_field :login
+
+			=f.label :password
+			=f.password_field :password
+
+			=f.label :password_confirmation
+			=f.password_field :password_confirmation
+
+			=f.submit 'Ок'

@@ -1,0 +1,43 @@
+=render 'shared/flash'
+#body
+	.row
+		%h2
+			="#{@user.full_name}"
+			.alert-box.alert Если вы еще не сменили логин/пароль на удобные вам, пожалуйста, сделайте это (по ссылке "Аккаунт").
+
+		-if @user.dead
+			.alert-box.alert
+				Сожалеем, вы мертвы
+		-else
+			.panel
+				- if @user.target.present?
+					- target = @user.target
+					%h4
+						Ваша цель -
+						= "#{target.full_name}"
+					.row.collapse
+						=form_tag kill_user_path(target) do
+							.small-7.columns
+								=text_field_tag 'target[killing_word]', nil, placeholder: 'Убивающее слово'
+								=hidden_field_tag 'target[id]', target.id
+								=hidden_field_tag 'method', 'by_user'
+							.small-5.columns
+								=submit_tag "Убить", class: 'button prefix'
+				-else
+					%h4 У вас пока нет цели
+
+
+
+
+			%p
+				Пароль для убийства вас -
+				= @user.killing_word
+
+
+			%h2 Ваши карточки
+			%ul
+			-@user.killers_cards.each do |card|
+				%li= card.victim.full_name
+
+
+

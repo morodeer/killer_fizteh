@@ -1,0 +1,26 @@
+
+#body
+	.row
+
+		.panel
+			%p Игра окончена, всем спасибо!
+		%h1 Убийства
+		=foundation_paginate @events
+
+		.panel
+			%p Теперь по дефолту у нас обратный порядок убийств - последние идут первыми.
+		%table
+			%thead
+				%td Время
+				%td Убийца
+				%td Жертва
+				%td Карточек
+				%td Новая цель
+			-@events.each do |event|
+				%tr
+					%td= (event.created_at + 4.hours).to_formatted_s(:short)
+					%td= link_to event.source.full_name, user_path(event.source)
+					%td= link_to event.target.full_name, user_path(event.target)
+					%td= event.card_count
+					%td= link_to event.new_target.full_name, user_path(event.new_target)
+

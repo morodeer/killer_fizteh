@@ -1,0 +1,35 @@
+=render 'shared/flash'
+#body
+	.row
+		.large-12
+			%h2 Редактирование входных данных
+			=form_for(@user, {multipart: true}) do |f|
+				=render 'shared/error_messages', object: f.object
+
+				.row
+					.large-8.columns
+						=f.label :name
+						=f.text_field :name
+
+						=f.label :surname
+						=f.text_field :surname
+
+						=f.label :login
+						=f.text_field :login
+
+						=f.label :password
+						=f.password_field :password
+
+						=f.label :password_confirmation
+						=f.password_field :password_confirmation
+
+						-if admin_signed_in?
+							=f.label :avatar
+							=f.file_field :avatar
+					.large-4.columns
+						= image_tag @user.avatar.url(:medium)
+
+				=f.hidden_field :id
+
+
+				=f.submit 'Ок', class: 'button'
